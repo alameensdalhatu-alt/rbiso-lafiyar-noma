@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rbiso-lafiyar-noma
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.6-luna
+      - key: ADMIN_KEY
+        sync: false
