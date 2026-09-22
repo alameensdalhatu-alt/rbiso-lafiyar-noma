@@ -1,0 +1,10 @@
+{
+  "name": "R-BISO LAFIYAR-NOMA",
+  "short_name": "R-BISO LAFIYAR-NOMA",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f7f5",
+  "theme_color": "#166534",
+  "description": "Crop disease screening and advisory app by R-BISO AGRICULTURAL PRODUCTS ENTERPRISE.",
+  "icons": []
+}

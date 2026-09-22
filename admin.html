@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R-BISO LAFIYAR-NOMA Admin</title>
+<style>body{font-family:system-ui;margin:0;background:#f4f7f5;color:#172018}.wrap{max-width:900px;margin:auto;padding:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.card{background:white;border:1px solid #dce5df;border-radius:14px;padding:16px}.num{font-size:30px;font-weight:800;color:#166534}input,button{padding:10px;border-radius:9px;border:1px solid #ccd8d0;font:inherit}button{background:#166534;color:white;border:0}</style></head>
+<body><div class="wrap"><h1>🌱 R-BISO LAFIYAR-NOMA Admin</h1><p>R-BISO AGRICULTURAL PRODUCTS ENTERPRISE</p>
+<div><input id="key" type="password" placeholder="Admin key"><button onclick="load()">Open dashboard</button></div>
+<div id="out" style="margin-top:18px"></div></div>
+<script>
+async function load(){const key=document.getElementById("key").value;const r=await fetch("/api/admin/stats",{headers:{"x-admin-key":key}});if(!r.ok){out.innerHTML="<div class=card>Unauthorized or server error.</div>";return}const x=await r.json();out.innerHTML=`
+<div class=grid><div class=card><div class=num>${x.farmers}</div>Farmers</div><div class=card><div class=num>${x.scans}</div>Scans</div></div>
+<div class=card style="margin-top:12px"><h3>Scans by crop</h3><pre>${JSON.stringify(x.byCrop,null,2)}</pre></div>
+<div class=card style="margin-top:12px"><h3>Diseases returned</h3><pre>${JSON.stringify(x.byDisease,null,2)}</pre></div>
+<div class=card style="margin-top:12px"><h3>Recent scans</h3><pre>${JSON.stringify(x.recent,null,2)}</pre></div>`}
+</script></body></html>

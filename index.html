@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#166534">
+<meta name="description" content="R-BISO LAFIYAR-NOMA — Crop disease check and advisory">
+<link rel="manifest" href="manifest.webmanifest">
+<title>R-BISO LAFIYAR-NOMA — Crop Disease Check</title>
+<style>
+:root{--green:#166534;--green2:#15803d;--bg:#f4f7f5;--card:#fff;--text:#172018;--muted:#66736a;--line:#dce5df;--danger:#b91c1c;--warn:#a16207;--ok:#166534}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.app{max-width:480px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:82px}
+header{background:var(--green);color:white;padding:18px 16px 16px;position:sticky;top:0;z-index:5}
+.brand{font-size:23px;font-weight:800}.sub{font-size:12px;opacity:.85}.top{display:flex;justify-content:space-between;align-items:center}
+button,.chip{font:inherit;border:0}.lang{background:#fff2;border:1px solid #ffffff55;color:white;border-radius:999px;padding:7px 11px}
+main{padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #00000008}
+h2{font-size:18px;margin:0 0 10px}h3{font-size:15px;margin:0 0 7px}.muted{color:var(--muted);font-size:13px}
+.chips{display:flex;gap:7px;overflow:auto;padding-bottom:3px}.chip{padding:9px 12px;border-radius:999px;background:#e8f1eb;color:#245533;white-space:nowrap}.chip.active{background:var(--green);color:white}
+.upload{border:2px dashed #9ab5a2;border-radius:15px;padding:22px;text-align:center;background:#fbfdfb}.upload input{display:none}.upload label{display:block;cursor:pointer}
+.preview{width:100%;max-height:280px;object-fit:cover;border-radius:12px;margin-top:12px}.actions{display:flex;gap:8px;margin-top:10px}.btn{flex:1;padding:11px;border-radius:11px;background:var(--green);color:#fff;font-weight:700}.btn.secondary{background:#e7eee9;color:#21462d}.btn.danger{background:#fee2e2;color:#991b1b}
+.check{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #edf1ee;font-size:14px}.check:last-child{border-bottom:0}
+.result{border-left:5px solid var(--green)}.confidence{font-weight:800}.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;background:#e7f5eb;color:var(--ok);margin:3px}
+.warn{background:#fff7df;color:#7c5b00;padding:10px;border-radius:10px;font-size:12px}.error{background:#fee2e2;color:#991b1b;padding:10px;border-radius:10px;font-size:12px}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:white;border-top:1px solid var(--line);display:flex;z-index:10}nav button{flex:1;padding:10px 4px;background:white;color:#617067;font-size:11px}nav button.active{color:var(--green);font-weight:800}
+.section{display:none}.section.active{display:block}.small{font-size:12px}.empty{text-align:center;padding:25px;color:var(--muted)}
+details{border-top:1px solid var(--line);padding:10px 0}summary{cursor:pointer;font-weight:700}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;background:white}
+@media(prefers-color-scheme:dark){:root{--bg:#101510;--card:#172019;--text:#edf5ef;--muted:#aab7ae;--line:#2b3930}nav,nav button{background:#172019}.upload{background:#111a14}textarea,input[type=text]{background:#101510;color:var(--text)}.chip{background:#203426;color:#d8eadc}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="top"><div><div class="brand">🌱 R-BISO LAFIYAR-NOMA</div><div class="sub" data-en="Crop disease check & advisory" data-ha="Binciken cututtukan amfanin gona da shawara">Crop disease check & advisory</div></div><button class="lang" id="langBtn">HA</button></div></header>
+
+<main>
+<section id="scan" class="section active">
+<div class="card">
+<h2 data-en="1. Select crop" data-ha="1. Zaɓi amfanin gona">1. Select crop</h2>
+<div class="chips" id="cropChips"></div>
+</div>
+
+<div class="card">
+<h2 data-en="2. Take or upload a photo" data-ha="2. Ɗauki ko saka hoto">2. Take or upload a photo</h2>
+<div class="upload">
+<label for="photo">📷 <strong data-en="Tap to take/select crop photo" data-ha="Danna ka ɗauki/zaɓi hoton amfanin gona">Tap to take/select crop photo</strong><br><span class="muted" data-en="Use a clear photo of the affected leaf, stem or fruit." data-ha="Yi hoto mai kyau na ganye, kara ko 'ya'yan itacen da abin ya shafa.">Use a clear photo of the affected leaf, stem or fruit.</span></label>
+<input id="photo" type="file" accept="image/*" capture="environment">
+<img id="preview" class="preview" hidden>
+<div class="actions"><button class="btn secondary" id="retake" hidden data-en="Retake" data-ha="Sake ɗauka">Retake</button><button class="btn" id="diagnose" hidden data-en="Diagnose photo" data-ha="Bincika hoton">Diagnose photo</button></div>
+</div>
+<div id="photoMsg" class="small muted" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+<h2 data-en="3. Manual symptom check" data-ha="3. Binciken alamomi da hannu">3. Manual symptom check</h2>
+<div id="symptoms"></div>
+<button class="btn" id="manualBtn" style="margin-top:10px" data-en="Check symptoms" data-ha="Bincika alamomi">Check symptoms</button>
+</div>
+
+<div id="result"></div>
+</section>
+
+<section id="library" class="section"><div class="card"><h2>📚 <span data-en="Disease library" data-ha="Littafin cututtuka">Disease library</span></h2><div id="libraryList"></div></div></section>
+<section id="history" class="section"><div class="card"><h2>🕘 <span data-en="Scan history" data-ha="Tarihin bincike">Scan history</span></h2><div id="historyList"></div><button class="btn danger" id="clearHistory" data-en="Clear history" data-ha="Goge tarihi">Clear history</button></div></section>
+
+<section id="profile" class="section">
+<div class="card"><h2>👨‍🌾 <span data-en="Farmer profile" data-ha="Bayanan manomi">Farmer profile</span></h2>
+<input id="farmerName" type="text" placeholder="Farmer name">
+<input id="farmerPhone" type="text" placeholder="Phone number" style="margin-top:8px">
+<input id="farmerLocation" type="text" placeholder="Location / LGA" style="margin-top:8px">
+<button class="btn" id="saveProfile" style="margin-top:10px" data-en="Save profile" data-ha="Ajiye bayanai">Save profile</button>
+<div id="profileMsg" class="small muted" style="margin-top:8px"></div></div>
+<div class="card"><h3>🏢 R-BISO AGRICULTURAL PRODUCTS ENTERPRISE</h3><p class="muted">R-BISO LAFIYAR-NOMA agriculture advisory platform.</p><p class="small">For serious or unclear crop problems, contact a qualified agricultural extension officer or agronomist.</p></div>
+</section>
+</main>
+
+<nav>
+<button class="active" data-go="scan">🔎<br>Scan</button><button data-go="library">📚<br>Library</button><button data-go="history">🕘<br>History</button><button data-go="profile">👨‍🌾<br>Farmer</button>
+</nav>
+</div>
+
+<script>
+const DB={
+maize:[
+{id:"msv",name:"Maize streak virus",symptoms:["Fine yellow streaks on leaves","Stunted plants","Poor cob development"],management:"Remove severely affected plants and control vectors using locally approved recommendations from an extension officer.",prevention:"Use tolerant/resistant varieties where available and manage volunteer maize and weeds."},
+{id:"nclb",name:"Northern corn leaf blight",symptoms:["Long grey-green/brown leaf lesions","Lesions enlarge and join","Early leaf drying"],management:"Improve field sanitation and seek local fungicide recommendations when disease pressure is high.",prevention:"Use resistant varieties, rotate crops and avoid excessive leaf wetness where practical."},
+{id:"fall_armyworm",name:"Fall armyworm damage",symptoms:["Ragged holes in young leaves","Frass near the whorl","Damage concentrated in the whorl"],management:"Scout early and consult an extension officer/agro-input professional for an approved control product and rate.",prevention:"Frequent scouting, early planting where appropriate and integrated pest management."}],
+tomato:[
+{id:"early_blight",name:"Early blight",symptoms:["Brown circular leaf spots","Target-like rings","Lower leaves affected first"],management:"Remove badly affected leaves, improve airflow and seek locally approved fungicide guidance.",prevention:"Crop rotation, clean seedlings and avoid prolonged leaf wetness."},
+{id:"bacterial_wilt",name:"Bacterial wilt",symptoms:["Sudden wilting","Leaves may remain green","Stem vascular browning"],management:"Remove affected plants and avoid moving contaminated soil/water between beds.",prevention:"Use clean planting material, resistant varieties where available and good field hygiene."},
+{id:"leaf_curl_mosaic",name:"Leaf curl / mosaic virus",symptoms:["Leaf curling","Mosaic or mottled leaves","Stunting"],management:"Remove strongly affected plants and manage insect vectors using approved integrated pest management.",prevention:"Use healthy seedlings, control vectors and remove infected volunteer plants."}],
+rice:[
+{id:"blast",name:"Rice blast",symptoms:["Spindle-shaped lesions","Grey centres with darker margins","Neck infection may cause panicle failure"],management:"Use balanced fertilization and seek locally approved fungicide guidance where necessary.",prevention:"Resistant varieties, clean seed and good field management."},
+{id:"rym",name:"Rice yellow mottle virus",symptoms:["Yellow or mottled leaves","Stunting","Uneven crop growth"],management:"Remove severely affected plants where practical and control vectors/volunteer hosts using integrated methods.",prevention:"Healthy seed, field sanitation and resistant varieties where available."},
+{id:"blb",name:"Bacterial leaf blight",symptoms:["Water-soaked leaf margins","Yellowing and drying","Long lesions along leaf edges"],management:"Avoid unnecessary leaf injury and manage irrigation/water movement carefully.",prevention:"Resistant varieties, clean seed and balanced nitrogen management."}],
+groundnut:[
+{id:"rosette",name:"Groundnut rosette disease",symptoms:["Yellowing or mottling","Severe stunting","Small distorted leaves"],management:"Remove badly affected plants early and manage aphid vectors using integrated methods.",prevention:"Early planting where suitable, resistant varieties and field sanitation."},
+{id:"cercospora",name:"Cercospora leaf spot",symptoms:["Brown leaf spots","Yellow halo around spots","Premature leaf drop"],management:"Improve field sanitation and obtain local fungicide guidance if needed.",prevention:"Rotation, resistant varieties and clean seed."},
+{id:"rust",name:"Groundnut rust",symptoms:["Orange-brown pustules","Leaf yellowing","Premature defoliation"],management:"Scout regularly and seek locally approved fungicide recommendations when necessary.",prevention:"Resistant varieties and good crop rotation."}],
+soybean:[
+{id:"soy_leaf_spot",name:"Soybean leaf spot complex",symptoms:["Small brown leaf spots","Yellowing","Premature leaf loss"],management:"Improve sanitation and seek local extension guidance on suitable control options.",prevention:"Clean seed, rotation and resistant varieties where available."}]
+};
+const crops={maize:"🌽 Maize",tomato:"🍅 Tomato",rice:"🌾 Rice",groundnut:"🥜 Groundnut",soybean:"🫘 Soybean"};
+let crop=localStorage.getItem("nl_crop")||"maize", lang=localStorage.getItem("nl_lang")||"en", photoData=null;
+
+const $=id=>document.getElementById(id);
+function saveHistory(item){let h=JSON.parse(localStorage.getItem("nl_history")||"[]");h.unshift({...item,date:new Date().toLocaleString()});localStorage.setItem("nl_history",JSON.stringify(h.slice(0,50)));renderHistory();}
+function renderCrops(){ $("cropChips").innerHTML=Object.entries(crops).map(([k,v])=>`<button class="chip ${k===crop?"active":""}" data-crop="${k}">${v}</button>`).join("");document.querySelectorAll("[data-crop]").forEach(b=>b.onclick=()=>{crop=b.dataset.crop;localStorage.setItem("nl_crop",crop);renderCrops();renderSymptoms();});}
+function renderSymptoms(){const ds=DB[crop]||[];const all=[...new Set(ds.flatMap(d=>d.symptoms))];$("symptoms").innerHTML=all.map((s,i)=>`<label class="check"><input type="checkbox" value="${i}"> ${s}</label>`).join("");}
+function card(d,confidence=0.7,source="Manual"){return `<div class="card result"><h2>${d.name}</h2><span class="badge">Confidence: ${Math.round(confidence*100)}%</span><span class="badge">${source}</span><h3>Symptoms</h3><ul>${d.symptoms.map(x=>`<li>${x}</li>`).join("")}</ul><h3>Management</h3><p>${d.management}</p><h3>Prevention</h3><p>${d.prevention}</p><button class="btn" onclick='saveHistory(${JSON.stringify({crop,disease:d.name,confidence,source})})'>Save to history</button><div class="warn" style="margin-top:9px">Advisory only. Confirm uncertain cases with an agricultural extension officer.</div></div>`}
+function renderLibrary(){$("libraryList").innerHTML=Object.entries(DB).flatMap(([c,ds])=>ds.map(d=>`<details><summary>${crops[c]} — ${d.name}</summary><p><b>Symptoms:</b> ${d.symptoms.join("; ")}</p><p><b>Management:</b> ${d.management}</p><p><b>Prevention:</b> ${d.prevention}</p></details>`)).join("");}
+function renderHistory(){let h=JSON.parse(localStorage.getItem("nl_history")||"[]");$("historyList").innerHTML=h.length?h.map(x=>`<div class="card"><b>${x.disease}</b><div class="small">${crops[x.crop]||x.crop} · ${x.source} · ${x.date}</div><div class="confidence">${Math.round((x.confidence||0)*100)}%</div></div>`).join(""):`<div class="empty">No scans saved yet.</div>`}
+function renderProfile(){let p=JSON.parse(localStorage.getItem("nl_profile")||"{}");$("farmerName").value=p.name||"";$("farmerPhone").value=p.phone||"";$("farmerLocation").value=p.location||""}
+function setLang(){document.querySelectorAll("[data-en]").forEach(el=>el.textContent=el.dataset[lang]);$("langBtn").textContent=lang==="en"?"HA":"EN";localStorage.setItem("nl_lang",lang)}
+$("langBtn").onclick=()=>{lang=lang==="en"?"ha":"en";setLang()};
+$("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;photoData=f;let u=URL.createObjectURL(f);$("preview").src=u;$("preview").hidden=false;$("retake").hidden=false;$("diagnose").hidden=false;$("photoMsg").textContent=f.name};
+$("retake").onclick=()=>{$("photo").value="";photoData=null;$("preview").hidden=true;$("retake").hidden=true;$("diagnose").hidden=true};
+$("diagnose").onclick=async()=>{if(!photoData)return;$("result").innerHTML=`<div class="card">🔄 Analyzing photo…</div>`;let fd=new FormData();fd.append("image",photoData);fd.append("crop",crop);try{let r=await fetch("/api/diagnose",{method:"POST",body:fd});if(!r.ok)throw new Error("API unavailable");let x=await r.json();let d=(DB[crop]||[]).find(z=>z.id===x.diseaseId);
+if(d){
+  $("result").innerHTML=card(d,Math.min(.99,Math.max(.01,x.confidence||.5)),"AI");
+}else{
+  const obs=(x.observations||[]).map(o=>`<li>${o}</li>`).join("");
+  $("result").innerHTML=`<div class="card"><h3>⚠️ Uncertain result</h3><p>The photo could not be matched confidently to the local disease library.</p>${obs?`<ul>${obs}</ul>`:""}<div class="small muted">${x.note||"Try a clearer photo in good daylight."}</div></div>`;
+}
+renderHistory();}catch(e){$("result").innerHTML=`<div class="card"><div class="warn">Real AI is not connected yet. The app is ready for the secure /api/diagnose backend. Use the manual checker below for now.</div></div>`}};
+$("manualBtn").onclick=()=>{let selected=[...$("symptoms").querySelectorAll("input:checked")].map(x=>Number(x.value));let ds=DB[crop]||[];let all=[...new Set(ds.flatMap(d=>d.symptoms))];let ranked=ds.map(d=>({d,score:d.symptoms.reduce((n,s)=>n+(selected.includes(all.indexOf(s))?1:0),0)})).sort((a,b)=>b.score-a.score);if(!selected.length){$("result").innerHTML=`<div class="card warn">Select at least one symptom first.</div>`;return}let best=ranked[0];let conf=Math.min(.95,.35+best.score/Math.max(1,best.d.symptoms.length)*.55);$("result").innerHTML=card(best.d,conf,"Manual")};
+$("clearHistory").onclick=()=>{localStorage.removeItem("nl_history");renderHistory()};
+$("saveProfile").onclick=async()=>{
+  const p={name:$("farmerName").value.trim(),phone:$("farmerPhone").value.trim(),location:$("farmerLocation").value.trim()};
+  if(!p.name){$("profileMsg").textContent="Please enter your name.";return}
+  localStorage.setItem("nl_profile",JSON.stringify(p));
+  try{
+    const r=await fetch("/api/profile",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});
+    if(!r.ok) throw new Error();
+    $("profileMsg").textContent="Profile saved.";
+  }catch(e){
+    $("profileMsg").textContent="Saved on this device. Server sync is unavailable.";
+  }
+};
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));$(b.dataset.go).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");});
+renderCrops();renderSymptoms();renderLibrary();renderHistory();renderProfile();setLang();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+<div class="small muted" style="text-align:center;padding:10px">R-BISO LAFIYAR-NOMA V3 · R-BISO Agricultural Products Enterprise</div></body></html>
