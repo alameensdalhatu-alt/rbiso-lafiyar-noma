@@ -55,7 +55,7 @@ app.get("/api/health", (req, res) => {
     ok: true,
     aiConfigured: Boolean(process.env.OPENAI_API_KEY),
     model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
-    version: "3.0"
+    version: "4.0"
   });
 });
 
