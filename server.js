@@ -194,5 +194,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`R-BISO LAFIYAR-NOMA V3 running on port ${PORT}`);
+  console.log(`R-BISO LAFIYAR-NOMA V4 running on port ${PORT}`);
 });
