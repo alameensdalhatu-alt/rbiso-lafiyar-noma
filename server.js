@@ -96,8 +96,8 @@ Rules:
           {
             type: "input_image",
             image_url: `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`
-          }
-        ]
+          ]
+        }
       ]
     });
 
